@@ -8,6 +8,8 @@ struct DropdownView: View {
     let onQuit: () -> Void
     let onRefresh: () -> Void
 
+    @State private var isRefreshing = false
+
     private let timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .none
@@ -77,22 +79,34 @@ struct DropdownView: View {
             }
 
             HStack {
-                Button(action: onRefresh) {
-                    Label("Aktualisieren", systemImage: "arrow.clockwise")
+                Button {
+                    guard !isRefreshing else { return }
+                    isRefreshing = true
+                    onRefresh()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        isRefreshing = false
+                    }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .rotationEffect(.degrees(isRefreshing ? 360 : 0))
+                        .animation(.easeInOut(duration: 0.6), value: isRefreshing)
                 }
                 .buttonStyle(.borderless)
+                .help("Aktualisieren")
 
                 Spacer()
 
                 Button(action: onSettings) {
-                    Label("Einstellungen", systemImage: "gear")
+                    Image(systemName: "gear")
                 }
                 .buttonStyle(.borderless)
+                .help("Einstellungen")
 
                 Button(action: onQuit) {
-                    Label("Beenden", systemImage: "power")
+                    Image(systemName: "power")
                 }
                 .buttonStyle(.borderless)
+                .help("Beenden")
             }
         }
         .padding(12)

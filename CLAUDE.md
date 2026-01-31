@@ -18,6 +18,20 @@ Swift Package mit `swift-tools-version:5.9`, Zielplattform macOS 13+.
 
 Es gibt keine Tests. Verifikation erfolgt manuell durch Starten der App.
 
+## Installation & Deinstallation
+
+```bash
+# Installieren (Release-Build + LaunchAgent fuer Autostart)
+./install.sh
+
+# Deinstallieren (LaunchAgent + Binary entfernen)
+./uninstall.sh
+```
+
+`install.sh` baut die Release-Version, kopiert das Binary nach `~/.local/bin/`, erstellt einen LaunchAgent (`com.claudechecker.plist`) und registriert ihn – die App startet dann automatisch bei der Anmeldung.
+
+`uninstall.sh` entlaedt den LaunchAgent und loescht Binary + Plist. Der Keychain-Eintrag bleibt erhalten (manuell loeschbar via `security delete-generic-password -s com.claudechecker.apikey`).
+
 ## Architektur
 
 macOS MenuBar-App (Accessory-App ohne Dock-Icon), die **claude.ai Plan-Nutzungslimits** (Session + Woechentlich) ueber die interne claude.ai Web-API anzeigt.
@@ -51,6 +65,7 @@ Der `/usage`-Endpoint liefert JSON mit `five_hour` (Session) und `seven_day` (We
 - **UI-Hybrid**: AppKit fuer MenuBar (NSStatusItem, NSPopover), Custom NSView fuer Fortschrittsbalken, SwiftUI fuer Popover-Inhalte und Setup-Dialog. Bridging via `NSHostingView`.
 - **State-Management**: Gesamter State in `AppDelegate`. Kein Reactive-Framework – direkte Methodenaufrufe.
 - **Org-ID Caching**: Wird einmalig beim ersten API-Call geholt und im Service gecacht.
+- **Popover-Buttons**: Nur Icons (arrow.clockwise, gear, power) mit `.help()` Tooltips. Aktualisieren-Button hat Dreh-Animation (360° in 0.6s) als visuelles Feedback.
 
 ### Farblogik der Fortschrittsbalken
 
