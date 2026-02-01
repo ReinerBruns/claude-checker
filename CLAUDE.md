@@ -49,7 +49,9 @@ AppDelegate (Orchestrator, Polling-Timer 5min)
             ├── ProgressBarView (NSView, Custom draw())
             │     ├── Aeusserer Balken: Weekly Usage (7-Tage)
             │     └── Innerer Balken: Session Usage (5-Stunden)
-            └── NSPopover → DropdownViewController → DropdownView (SwiftUI)
+            └── NSPopover → DropdownViewController
+                    ├── DropdownViewModel (ObservableObject, @Published State)
+                    └── DropdownView (SwiftUI, @ObservedObject)
 ```
 
 ### Authentifizierung
@@ -63,7 +65,7 @@ Der `/usage`-Endpoint liefert JSON mit `five_hour` (Session) und `seven_day` (We
 ### Zentrale Patterns
 
 - **UI-Hybrid**: AppKit fuer MenuBar (NSStatusItem, NSPopover), Custom NSView fuer Fortschrittsbalken, SwiftUI fuer Popover-Inhalte und Setup-Dialog. Bridging via `NSHostingView`.
-- **State-Management**: Gesamter State in `AppDelegate`. Kein Reactive-Framework – direkte Methodenaufrufe.
+- **State-Management**: Gesamter State in `AppDelegate`. Popover-Daten fliessen ueber `DropdownViewModel` (`ObservableObject` mit `@Published`-Properties) – SwiftUI aktualisiert die View reaktiv ohne NSHostingView-Neuerstellung.
 - **Org-ID Caching**: Wird einmalig beim ersten API-Call geholt und im Service gecacht.
 - **Popover-Buttons**: Nur Icons (arrow.clockwise, gear, power) mit `.help()` Tooltips. Aktualisieren-Button hat Dreh-Animation (360° in 0.6s) als visuelles Feedback.
 

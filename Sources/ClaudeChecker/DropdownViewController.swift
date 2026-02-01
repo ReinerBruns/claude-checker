@@ -1,15 +1,18 @@
 import Cocoa
 import SwiftUI
 
-final class DropdownViewController: NSViewController {
-    var usage: ClaudeUsageData = .empty
-    var lastUpdated: Date?
-    var errorMessage: String?
+final class DropdownViewModel: ObservableObject {
+    @Published var usage: ClaudeUsageData = .empty
+    @Published var lastUpdated: Date?
+    @Published var errorMessage: String?
 
     var onSettings: (() -> Void)?
     var onQuit: (() -> Void)?
     var onRefresh: (() -> Void)?
+}
 
+final class DropdownViewController: NSViewController {
+    let viewModel = DropdownViewModel()
     private var hostingView: NSHostingView<DropdownView>?
 
     override func loadView() {
@@ -18,20 +21,11 @@ final class DropdownViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateContent()
+        setupHostingView()
     }
 
-    func updateContent() {
-        hostingView?.removeFromSuperview()
-
-        let dropdownView = DropdownView(
-            usage: usage,
-            lastUpdated: lastUpdated,
-            errorMessage: errorMessage,
-            onSettings: { [weak self] in self?.onSettings?() },
-            onQuit: { [weak self] in self?.onQuit?() },
-            onRefresh: { [weak self] in self?.onRefresh?() }
-        )
+    private func setupHostingView() {
+        let dropdownView = DropdownView(viewModel: viewModel)
 
         let hosting = NSHostingView(rootView: dropdownView)
         hosting.translatesAutoresizingMaskIntoConstraints = false
@@ -45,6 +39,11 @@ final class DropdownViewController: NSViewController {
         ])
 
         hostingView = hosting
-        self.preferredContentSize = hosting.fittingSize
+    }
+
+    func updatePreferredContentSize() {
+        if let hosting = hostingView {
+            self.preferredContentSize = hosting.fittingSize
+        }
     }
 }

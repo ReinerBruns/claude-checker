@@ -46,7 +46,7 @@ final class StatusBarController {
 
     private func showPopover() {
         guard let button = statusItem.button else { return }
-        dropdownVC.updateContent()
+        dropdownVC.updatePreferredContentSize()
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
@@ -68,15 +68,15 @@ final class StatusBarController {
     }
 
     func updateDropdownData(usage: ClaudeUsageData, lastUpdated: Date?, errorMessage: String?) {
-        dropdownVC.usage = usage
-        dropdownVC.lastUpdated = lastUpdated
-        dropdownVC.errorMessage = errorMessage
+        dropdownVC.viewModel.usage = usage
+        dropdownVC.viewModel.lastUpdated = lastUpdated
+        dropdownVC.viewModel.errorMessage = errorMessage
     }
 
     func setDropdownCallbacks(onSettings: @escaping () -> Void, onQuit: @escaping () -> Void, onRefresh: @escaping () -> Void) {
-        dropdownVC.onSettings = onSettings
-        dropdownVC.onQuit = onQuit
-        dropdownVC.onRefresh = onRefresh
+        dropdownVC.viewModel.onSettings = onSettings
+        dropdownVC.viewModel.onQuit = onQuit
+        dropdownVC.viewModel.onRefresh = onRefresh
     }
 
     func showInitialText(_ text: String) {

@@ -1,12 +1,7 @@
 import SwiftUI
 
 struct DropdownView: View {
-    let usage: ClaudeUsageData
-    let lastUpdated: Date?
-    let errorMessage: String?
-    let onSettings: () -> Void
-    let onQuit: () -> Void
-    let onRefresh: () -> Void
+    @ObservedObject var viewModel: DropdownViewModel
 
     @State private var isRefreshing = false
 
@@ -39,7 +34,7 @@ struct DropdownView: View {
                 .font(.headline)
                 .padding(.bottom, 2)
 
-            if let error = errorMessage {
+            if let error = viewModel.errorMessage {
                 HStack(alignment: .top) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.orange)
@@ -54,8 +49,8 @@ struct DropdownView: View {
             usageSection(
                 title: "Plan-Nutzungslimits",
                 subtitle: "Current session",
-                percent: usage.sessionPercent,
-                resetTime: usage.sessionResetTime,
+                percent: viewModel.usage.sessionPercent,
+                resetTime: viewModel.usage.sessionResetTime,
                 resetLabel: "Zuruecksetzung"
             )
 
@@ -65,14 +60,14 @@ struct DropdownView: View {
             usageSection(
                 title: "Woechentliche Limits",
                 subtitle: "All models",
-                percent: usage.weeklyPercent,
-                resetTime: usage.weeklyResetTime,
+                percent: viewModel.usage.weeklyPercent,
+                resetTime: viewModel.usage.weeklyResetTime,
                 resetLabel: "Zuruecksetzung"
             )
 
             Divider()
 
-            if let updated = lastUpdated {
+            if let updated = viewModel.lastUpdated {
                 Text("Aktualisiert: \(fullFormatter.string(from: updated))")
                     .font(.caption2)
                     .foregroundColor(.secondary)
@@ -82,7 +77,7 @@ struct DropdownView: View {
                 Button {
                     guard !isRefreshing else { return }
                     isRefreshing = true
-                    onRefresh()
+                    viewModel.onRefresh?()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                         isRefreshing = false
                     }
@@ -96,13 +91,13 @@ struct DropdownView: View {
 
                 Spacer()
 
-                Button(action: onSettings) {
+                Button(action: { viewModel.onSettings?() }) {
                     Image(systemName: "gear")
                 }
                 .buttonStyle(.borderless)
                 .help("Einstellungen")
 
-                Button(action: onQuit) {
+                Button(action: { viewModel.onQuit?() }) {
                     Image(systemName: "power")
                 }
                 .buttonStyle(.borderless)
