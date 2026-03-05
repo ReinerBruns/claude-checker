@@ -22,7 +22,7 @@ final class DropdownViewController: NSViewController {
     }
 
     func updateContent() {
-        hostingView?.removeFromSuperview()
+        view.subviews.forEach { $0.removeFromSuperview() }
 
         let dropdownView = DropdownView(
             usage: usage,

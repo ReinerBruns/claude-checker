@@ -32,6 +32,15 @@ Es gibt keine Tests. Verifikation erfolgt manuell durch Starten der App.
 
 `uninstall.sh` entlaedt den LaunchAgent und loescht Binary + Plist. Der Keychain-Eintrag bleibt erhalten (manuell loeschbar via `security delete-generic-password -s com.claudechecker.apikey`).
 
+### Automatische Installation via Git-Hook
+
+Ein `post-commit` Hook (`.git/hooks/post-commit`) sorgt dafuer, dass nach jedem Commit automatisch:
+1. Ein Release-Build erzeugt wird (`swift build -c release`)
+2. Das Binary nach `~/.local/bin/` kopiert wird
+3. Die laufende App beendet und ueber den LaunchAgent neu gestartet wird
+
+Damit ist sichergestellt, dass der LaunchAgent beim naechsten Login immer die aktuelle Version startet. Der Hook liegt in `.git/hooks/` und wird nicht mit gepusht – bei einem frischen Clone muss `./install.sh` einmalig ausgefuehrt werden.
+
 ## Architektur
 
 macOS MenuBar-App (Accessory-App ohne Dock-Icon), die **claude.ai Plan-Nutzungslimits** (Session + Woechentlich) ueber die interne claude.ai Web-API anzeigt.

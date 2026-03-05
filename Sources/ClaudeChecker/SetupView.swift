@@ -1,10 +1,11 @@
 import SwiftUI
+import AppKit
 
 struct SetupView: View {
     @State private var sessionKey: String = ""
     @State private var isValidating: Bool = false
     @State private var errorMessage: String?
-    @State private var showKey: Bool = false
+    @State private var showKey: Bool = true
 
     let onComplete: (String) -> Void
     let onCancel: (() -> Void)?
@@ -43,8 +44,22 @@ struct SetupView: View {
                     Image(systemName: showKey ? "eye.slash" : "eye")
                 }
                 .buttonStyle(.borderless)
+                .help(showKey ? "Key verbergen" : "Key anzeigen")
             }
             .frame(width: 400)
+
+            HStack(spacing: 8) {
+                Button(action: pasteFromClipboard) {
+                    Label("Aus Zwischenablage einfuegen", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.bordered)
+
+                if !sessionKey.isEmpty {
+                    Text("\(sessionKey.count) Zeichen")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
 
             if let error = errorMessage {
                 Text(error)
@@ -75,6 +90,24 @@ struct SetupView: View {
         }
         .padding(24)
         .frame(width: 480)
+        .onAppear {
+            autoFillFromClipboard()
+        }
+    }
+
+    private func pasteFromClipboard() {
+        if let text = NSPasteboard.general.string(forType: .string) {
+            sessionKey = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
+
+    private func autoFillFromClipboard() {
+        if let text = NSPasteboard.general.string(forType: .string) {
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.hasPrefix("sk-ant-") {
+                sessionKey = trimmed
+            }
+        }
     }
 
     private func validateAndSave() {
