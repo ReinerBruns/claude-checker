@@ -8,8 +8,8 @@ final class StatusBarController {
     private var eventMonitor: Any?
 
     init() {
-        statusItem = NSStatusBar.system.statusItem(withLength: 84)
-        progressBarView = ProgressBarView(frame: NSRect(x: 0, y: 0, width: 80, height: 18))
+        statusItem = NSStatusBar.system.statusItem(withLength: 90)
+        progressBarView = ProgressBarView(frame: NSRect(x: 0, y: 0, width: 90, height: 24))
         dropdownVC = DropdownViewController()
         popover = NSPopover()
         popover.contentViewController = dropdownVC
@@ -26,10 +26,10 @@ final class StatusBarController {
         button.addSubview(progressBarView)
 
         NSLayoutConstraint.activate([
-            progressBarView.centerXAnchor.constraint(equalTo: button.centerXAnchor),
-            progressBarView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
-            progressBarView.widthAnchor.constraint(equalToConstant: 80),
-            progressBarView.heightAnchor.constraint(equalToConstant: 18)
+            progressBarView.leadingAnchor.constraint(equalTo: button.leadingAnchor),
+            progressBarView.trailingAnchor.constraint(equalTo: button.trailingAnchor),
+            progressBarView.topAnchor.constraint(equalTo: button.topAnchor),
+            progressBarView.bottomAnchor.constraint(equalTo: button.bottomAnchor)
         ])
 
         button.action = #selector(togglePopover)
@@ -62,9 +62,16 @@ final class StatusBarController {
         }
     }
 
-    func updateProgressBars(sessionFraction: Double, weeklyFraction: Double) {
+    func updateProgressBars(
+        sessionFraction: Double,
+        weeklyFraction: Double,
+        sessionResetFraction: Double,
+        weeklyResetFraction: Double
+    ) {
         progressBarView.sessionFraction = sessionFraction
         progressBarView.weeklyFraction = weeklyFraction
+        progressBarView.sessionResetFraction = sessionResetFraction
+        progressBarView.weeklyResetFraction = weeklyResetFraction
     }
 
     func updateDropdownData(usage: ClaudeUsageData, lastUpdated: Date?, errorMessage: String?) {

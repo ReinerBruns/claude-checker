@@ -5,6 +5,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusBarController: StatusBarController?
     private var apiService: ClaudeWebAPIService?
     private var pollingTimer: Timer?
+    private var clockTimer: Timer?
     private var setupWindow: NSWindow?
 
     private var currentUsage: ClaudeUsageData = .empty
@@ -39,11 +40,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         pollingTimer = Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { [weak self] _ in
             self?.fetchUsage()
         }
+
+        clockTimer?.invalidate()
+        clockTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            self?.updateUI()
+        }
     }
 
     private func stopPolling() {
         pollingTimer?.invalidate()
         pollingTimer = nil
+        clockTimer?.invalidate()
+        clockTimer = nil
     }
 
     private func fetchUsage() {
@@ -71,7 +79,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarController?.showProgressBars()
         statusBarController?.updateProgressBars(
             sessionFraction: currentUsage.sessionFraction,
-            weeklyFraction: currentUsage.weeklyFraction
+            weeklyFraction: currentUsage.weeklyFraction,
+            sessionResetFraction: currentUsage.sessionResetClockFraction,
+            weeklyResetFraction: currentUsage.weeklyResetClockFraction
         )
         statusBarController?.updateDropdownData(
             usage: currentUsage,
